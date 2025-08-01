@@ -1,4 +1,5 @@
 # ml_trainer/trainer.py
+import json
 from datetime import datetime
 from ml_logger import get_logger
 import os
@@ -10,7 +11,9 @@ from sklearn.linear_model import LogisticRegression
 
 
 class ModelTrainer:
+
     def __init__(self, model=None, test_size=0.2, random_state=42, save_path="artifacts/models"):
+
         self.model = model or LogisticRegression()
         self.test_size = test_size
         self.random_state = random_state
@@ -18,7 +21,9 @@ class ModelTrainer:
         os.makedirs(save_path, exist_ok=True)
         self.logger = get_logger("ml_trainer")
         
+
     def train(self, df: pd.DataFrame, target_col: str):
+
         X = df.drop(columns=[target_col])
         y = df[target_col]
 
@@ -45,13 +50,18 @@ class ModelTrainer:
         return acc, model_path
 
 
-    def _save_metrics(self, accuracy, path="artifacts/metrics"):
-       """Persists metrics as JSON for tracking"""
-        os.makedirs(path, exist_ok=True)
+    def _save_metrics(self, accuracy, model_path):
+        
+        """Persists metrics as JSON for tracking"""
+        metrics_dir = "artifacts/metrics"
+        os.makedirs(metrics_dir, exist_ok=True)  # Create metrics directory
+        
         metrics = {
             "accuracy": accuracy,
             "timestamp": datetime.now().isoformat(),
-            "model_path": path
+            "model_path": model_path
         }
-        with open(f"{path}/training_metrics.json", "w") as f:
+        
+        metrics_file = os.path.join(metrics_dir, "training_metrics.json")
+        with open(metrics_file, "w") as f:
             json.dump(metrics, f, indent=2)
